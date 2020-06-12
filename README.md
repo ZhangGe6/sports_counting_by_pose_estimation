@@ -6,6 +6,7 @@ This repository is an android demo for real-time single person sports counting  
 Below pngs are the running samples of these two sports (using Hisilicon 990). The counting number are shown on the upper left. you can see the mp4 format in the folder `samples`. And you can also download the apk to test on your device.
 
 ![image](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/sit-up.png)
+
 ![image](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/Leg shift.png)
 
 # About the model
