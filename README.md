@@ -11,6 +11,11 @@ In this repository, I simply use the pretrained model provided in [PoseEstimatio
 # About How the counting procedure works
 I use the data of the human body to "relatively" measure a movement. For example, when doing sit-ups, if the height from the head to the hips is greater than the length from the hips to the knees, a standard sit-up is done. That is, the number of sit-up is increased by 1.  The corresponhding code is as followed (the variable `sitUpLockFlag` and `prev` is used for avoiding unvalid button jitter and model interference jitter, respectively).
 ```java
+/*
+   0-head; 1-neck;
+   2-l_shoulder; 3-l_elbow; 4-l_wrist; 8-l_hip; 9-l_knee; 10-l_ankle
+   5-r_shoulder; 6-r_elbow; 7-r_wrist; 11-r_hip; 12-r_knee; 13-r_ankle
+*/
 var hip2ankle: Float = jointList[10].y - jointList[8].y
 var head2hip_vertical: Float = jointList[0].x - jointList[8].x
 var neck2hip_vertical: Float = jointList[1].x - jointList[8].x
