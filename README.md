@@ -5,9 +5,9 @@ This repository is an android demo for real-time single person sports counting  
 
 Below pngs are the running samples of these two sports (using Hisilicon 990). The counting number are shown on the upper left. you can see the mp4 format in the folder `samples`. And you can also download the apk to test on your device.
 
-![image](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/sit-up.png)
+![sit-up-png](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/sit-up.png)
 
-![image](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/Leg-shift.png)
+![leg-shift-png](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/Leg-shift.png)
 
 # About the model
 In this repository, I simply use the pretrained model provided in [PoseEstimationForMobile](https://github.com/edvardHua/PoseEstimationForMobile). As that repository notes, both the model architectures (accuracy) and dataset still have a huge margin of improvement. So if you want a more impressive performance, you can follow that guidance to train a new model and transfer it into tflite type.
@@ -37,9 +37,9 @@ prev = head2hip_vertical
 ```
 
 # My environment configration
-Operation System: Windows 10
-Android Studio: 4.0
-NDK Version: r21
+* Operation System: Windows 10
+* Android Studio: 4.0
+* NDK Version: r21
 
 # Credits
 Great thanks to [edvardHua](https://github.com/edvardHua). Without his repository [PoseEstimationForMobile](https://github.com/edvardHua/PoseEstimationForMobile), I cannot accomplish this task so quickly. 
