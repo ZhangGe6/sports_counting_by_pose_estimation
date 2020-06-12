@@ -7,7 +7,7 @@ Below pngs are the running samples of these two sports (using Hisilicon 990). Th
 
 ![image](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/sit-up.png)
 
-![image](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/Leg shift.png)
+![image](http://github.com/ZhangGe6/sports_counting_by_pose_estimation/raw/master/samples/Leg-shift.png)
 
 # About the model
 In this repository, I simply use the pretrained model provided in [PoseEstimationForMobile](https://github.com/edvardHua/PoseEstimationForMobile). As that repository notes, both the model architectures (accuracy) and dataset still have a huge margin of improvement. So if you want a more impressive performance, you can follow that guidance to train a new model and transfer it into tflite type.
