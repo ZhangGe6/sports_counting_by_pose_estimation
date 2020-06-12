@@ -16,13 +16,13 @@ I use the data of the human body to "relatively" measure a movement. For example
    2-l_shoulder; 3-l_elbow; 4-l_wrist; 8-l_hip; 9-l_knee; 10-l_ankle
    5-r_shoulder; 6-r_elbow; 7-r_wrist; 11-r_hip; 12-r_knee; 13-r_ankle
 */
-var hip2ankle: Float = jointList[10].y - jointList[8].y
+var hip2ankle_horizontal: Float = jointList[10].y - jointList[8].y
 var head2hip_vertical: Float = jointList[0].x - jointList[8].x
 var neck2hip_vertical: Float = jointList[1].x - jointList[8].x
 valid_jitter = abs(head2hip_vertical-prev)<15
-if (!sitUpLockFlag && head2hip_vertical > hip2ankle){
+if (!sitUpLockFlag && head2hip_vertical > hip2ankle_horizontal){
    sitUpLockFlag = true     //avoiding unvalid button jitter
-   yangwoCount += 1
+   sitUpCount += 1
  }
 if (abs(head2hip_vertical) < 100 && valid_jitter && neck2hip_vertical != 0.0F) {
    sitUpLockFlag = false
