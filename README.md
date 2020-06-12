@@ -1,5 +1,5 @@
 # About this repository
-This repository is an android demo for real-time single person sports counting  by pose estimation. It implementes the CPM and Hourglass model using TensorFlow. Mobilenet V2 module is used inside the model for real-time inference. Currently we have surpported the sports coungting of:
+This repository is an android demo for **real-time single person sports counting  by pose estimation**. It implementes the CPM and Hourglass model using TensorFlow. Mobilenet V2 module is used inside the model for real-time inference. Currently we have surpported the sports coungting of:
 * Sit-ups
 * Leg lift
 
