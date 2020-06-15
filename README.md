@@ -13,7 +13,7 @@ Below pngs are the running samples of these two sports (using Hisilicon 990). Th
 In this repository, I simply use the pretrained model provided in [PoseEstimationForMobile](https://github.com/edvardHua/PoseEstimationForMobile). As that repository notes, both the model architectures (accuracy) and dataset still have a huge margin of improvement. So if you want a more impressive performance, you can follow that guidance to train a new model and transfer it into tflite type.
 
 # About How the counting procedure works
-I use the data of the human body to "relatively" measure a movement. For example, when doing sit-ups, if the height from the head to the hips is greater than the length from the hips to the knees, a standard sit-up is done. That is, the number of sit-up is increased by 1.  The corresponhding code is as followed (the variable `sitUpLockFlag` and `prev` is used for avoiding unvalid button jitter and model interference jitter, respectively).
+I use the data of the human body to "relatively" measure a movement. For example, when doing sit-ups, if the height from the head to the hips is greater than the length from the hips to the knees, a standard sit-up is done. That is, the number of sit-up is increased by 1.  The corresponhding code is as followed (the variable `sitUpLockFlag` and `prev` is used for avoiding invalid button jitter and model interference jitter, respectively).
 ```java
 /*
    0-head; 1-neck;
