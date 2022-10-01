@@ -13,22 +13,15 @@
 // specific language governing permissions and limitations under the License.
 
 #include "movenet.h"
+#include "utils.cpp"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
 #include "cpu.h"
-
-const int num_joints = 17;
-
-template<class ForwardIterator>
-inline static size_t argmax(ForwardIterator first, ForwardIterator last) {
-    return std::distance(first, std::max_element(first, last));
-}
-
 
 MoveNet::MoveNet()
 {
+    num_joints = 17;
     sport_kind = 1;
     count_number = 0;
     count_lock = false;
@@ -222,7 +215,7 @@ void MoveNet::detect(cv::Mat &rgb, std::vector<keypoint> &points)
     }
 }
 
-int MoveNet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
+void MoveNet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
 {
     int skele_index[][2] = {
         {0,1},{0,2},{1,3},{2,4},{0,5},
@@ -255,23 +248,6 @@ int MoveNet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
                     3, cv::Scalar(100, 255, 150), -1
                     );
     }
-    return 0;
-}
-
-float angle(keypoint& pa, keypoint& pb, keypoint& pc) {
-    // pa --- pb --- pc
-    float dx1 = pa.x - pb.x;
-    float dx2 = pc.x - pb.x;
-    float dy1 = pa.y - pb.y;
-    float dy2 = pc.y - pb.y;
-
-    float inner_prod = dx1 * dx2 + dy1 * dy2;
-    float mag1 = sqrt(dx1 * dx1 + dy1 * dy1);
-    float mag2 = sqrt(dx2 * dx2 + dy2 * dy2);
-    float theta = acos(inner_prod / (mag1 * mag2));
-    float deg = theta * 57.3; // 57.3 = 180 / 3.1415
-
-    return deg;
 }
 
 void MoveNet::count(std::vector<keypoint>& points) {

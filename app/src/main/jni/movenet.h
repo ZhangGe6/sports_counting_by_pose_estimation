@@ -31,21 +31,19 @@ public:
     MoveNet();
 
     int load(const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu = false, int sport_id=0);
-
     int load(AAssetManager* mgr, const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu=false, int sport_id=0);
 
+    void preprocess(cv::Mat &rgb, ncnn::Mat& in_processed, int& hpad, int& wpad, float& scale);
     void detect(cv::Mat &rgb, std::vector<keypoint> &points);
-    int draw(cv::Mat& rgb, std::vector<keypoint> &points);
+    void draw(cv::Mat& rgb, std::vector<keypoint> &points);
     void count(std::vector<keypoint>& points);
 
     int sport_kind;
     int count_number;
 
 private:
-
-    void preprocess(cv::Mat &rgb, ncnn::Mat& in_processed, int& hpad, int& wpad, float& scale);
-
     ncnn::Net poseNet;
+    int num_joints;
     int feature_size;
     int target_size;
     float mean_vals[3];

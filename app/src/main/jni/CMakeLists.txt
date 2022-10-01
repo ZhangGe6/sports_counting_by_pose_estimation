@@ -8,6 +8,6 @@ find_package(OpenCV REQUIRED core imgproc)
 set(ncnn_DIR ${CMAKE_SOURCE_DIR}/ncnn-20220216-android-vulkan/${ANDROID_ABI}/lib/cmake/ncnn)
 find_package(ncnn REQUIRED)
 
-add_library(movenetncnn SHARED movenetncnn.cpp movenet.cpp ndkcamera.cpp)
+add_library(movenetncnn SHARED movenetncnn.cpp movenet.cpp utils.cpp ndkcamera.cpp)
 
 target_link_libraries(movenetncnn ncnn ${OpenCV_LIBS} camera2ndk mediandk)
