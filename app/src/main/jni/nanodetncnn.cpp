@@ -110,6 +110,28 @@ static int draw_fps(cv::Mat& rgb)
     return 0;
 }
 
+static int draw_count(cv::Mat& rgb, int count)
+{
+
+    char text[32];
+    sprintf(text, "count=%d", count);
+
+    int baseLine = 0;
+    cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
+
+    int y = 20;
+    int x = rgb.cols - label_size.width;
+
+    cv::rectangle(rgb, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)),
+                  cv::Scalar(255, 255, 255), -1);
+
+    cv::putText(rgb, text, cv::Point(x, y + label_size.height),
+                cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
+
+    return 0;
+}
+
+
 static NanoDet* g_nanodet = 0;
 static ncnn::Mutex lock;
 
@@ -127,9 +149,10 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
 
         if (g_nanodet)
         {
-            g_nanodet->detect(rgb);
-
-            g_nanodet->draw(rgb);
+            std::vector<keypoint> points;
+            g_nanodet->detect_pose(rgb, points);
+            g_nanodet->draw(rgb, points);
+            g_nanodet->count(points);
         }
         else
         {
@@ -138,6 +161,8 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
     }
 
     draw_fps(rgb);
+    draw_count(rgb, g_nanodet ? g_nanodet->count_number : 0);
+
 }
 
 static MyNdkCamera* g_camera = 0;

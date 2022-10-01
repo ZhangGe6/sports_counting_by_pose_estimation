@@ -29,9 +29,12 @@ inline static size_t argmax(ForwardIterator first, ForwardIterator last) {
 
 NanoDet::NanoDet()
 {
+    sport_kind = 1;
+    count_number = 0;
+    count_lock = false;
+
     blob_pool_allocator.set_size_compare_ratio(0.f);
     workspace_pool_allocator.set_size_compare_ratio(0.f);
-
 }
 
 int NanoDet::load(const char* modeltype, int _target_size, const float* _mean_vals, const float* _norm_vals, bool use_gpu)
@@ -139,7 +142,6 @@ int NanoDet::detect(const cv::Mat& rgb)
 void NanoDet::preprocess(cv::Mat &rgb, ncnn::Mat& in_processed, int& hpad, int& wpad, float& scale) {
     int w = rgb.cols;
     int h = rgb.rows;
-//    float scale = 1.f;
     if (w > h)
     {
         scale = (float)target_size / w;
@@ -238,10 +240,10 @@ void NanoDet::detect_pose(cv::Mat &rgb, std::vector<keypoint> &points)
     }
 }
 
-int NanoDet::draw(cv::Mat& rgb)
+int NanoDet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
 {
-    std::vector<keypoint> points;
-    detect_pose(rgb,points);
+//    std::vector<keypoint> points;
+//    detect_pose(rgb,points);
 
     int skele_index[][2] = { {0,1},{0,2},{1,3},{2,4},{0,5},{0,6},{5,6},{5,7},{7,9},{6,8},{8,10},{11,12},
                                 {5,11},{11,13},{13,15},{6,12},{12,14},{14,16} };
@@ -276,4 +278,34 @@ int NanoDet::draw(cv::Mat& rgb)
             cv::circle(rgb, cv::Point(points[i].x,points[i].y), 3, cv::Scalar(100, 255, 150), -1);
     }
     return 0;
+}
+
+float angle(keypoint& pa, keypoint& pb, keypoint& pc) {
+    // pa --- pb --- pc
+    float dx1 = pa.x - pb.x;
+    float dx2 = pc.x - pb.x;
+    float dy1 = pa.y - pb.y;
+    float dy2 = pc.y - pb.y;
+
+    float inner_prod = dx1 * dx2 + dy1 * dy2;
+    float mag1 = sqrt(dx1 * dx1 + dy1 * dy1);
+    float mag2 = sqrt(dx2 * dx2 + dy2 * dy2);
+    float theta = acos(inner_prod / (mag1 * mag2));
+    float deg = theta * 57.3; // 57.3 = 180 / 3.1415
+
+    return deg;
+}
+
+void NanoDet::count(std::vector<keypoint>& points) {
+    if (sport_kind == 1) {
+        float neck_hip_foot_angle = angle(points[0], points[11], points[15]);
+        if (!count_lock && neck_hip_foot_angle < 120) {
+            count_lock = true;
+            count_number += 1;
+        }
+        if (count_lock && neck_hip_foot_angle > 150) {
+            count_lock = false;
+        }
+    }
+
 }

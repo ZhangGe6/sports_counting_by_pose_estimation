@@ -35,13 +35,17 @@ public:
     int load(AAssetManager* mgr, const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu = false);
 
     int detect(const cv::Mat& rgb);
+    void detect_pose(cv::Mat &rgb, std::vector<keypoint> &points);
+    int draw(cv::Mat& rgb, std::vector<keypoint> &points);
+    void count(std::vector<keypoint>& points);
 
-    int draw(cv::Mat& rgb);
+    int sport_kind;
+    int count_number;
 
 private:
 
     void preprocess(cv::Mat &rgb, ncnn::Mat& in_processed, int& hpad, int& wpad, float& scale);
-    void detect_pose(cv::Mat &rgb, std::vector<keypoint> &points);
+
     ncnn::Net poseNet;
     int feature_size;
     float kpt_scale;
@@ -49,6 +53,8 @@ private:
     float mean_vals[3];
     float norm_vals[3];
     std::vector<std::vector<float>> dist_y, dist_x;
+    bool count_lock;
+
 
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;
