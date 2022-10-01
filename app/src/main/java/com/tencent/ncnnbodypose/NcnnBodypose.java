@@ -19,13 +19,13 @@ import android.view.Surface;
 
 public class NcnnBodypose
 {
-    public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
+    public native boolean loadModel(AssetManager mgr, int sport_id, int cpugpu);
     public native boolean openCamera(int facing);
     public native boolean closeCamera();
     public native boolean setOutputWindow(Surface surface);
 
     static {
-//        System.loadLibrary("ncnnbodypose");
-        System.loadLibrary("nanodetncnn");
+//        System.loadLibrary("nanodetncnn");
+        System.loadLibrary("movenetncnn");
     }
 }

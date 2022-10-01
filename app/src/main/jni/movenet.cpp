@@ -12,7 +12,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-#include "nanodet.h"
+#include "movenet.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -27,7 +27,7 @@ inline static size_t argmax(ForwardIterator first, ForwardIterator last) {
 }
 
 
-NanoDet::NanoDet()
+MoveNet::MoveNet()
 {
     sport_kind = 1;
     count_number = 0;
@@ -37,7 +37,7 @@ NanoDet::NanoDet()
     workspace_pool_allocator.set_size_compare_ratio(0.f);
 }
 
-int NanoDet::load(const char* modeltype, int _target_size, const float* _mean_vals, const float* _norm_vals, bool use_gpu)
+int MoveNet::load(const char* modeltype, int _target_size, const float* _mean_vals, const float* _norm_vals, bool use_gpu, int sport_id)
 {
     poseNet.clear();
     blob_pool_allocator.clear();
@@ -72,10 +72,14 @@ int NanoDet::load(const char* modeltype, int _target_size, const float* _mean_va
     norm_vals[1] = _norm_vals[1];
     norm_vals[2] = _norm_vals[2];
 
+    sport_kind = sport_id;
+    count_number = 0;
+    count_lock = false;
+
     return 0;
 }
 
-int NanoDet::load(AAssetManager* mgr, const char* modeltype, int _target_size, const float* _mean_vals, const float* _norm_vals, bool use_gpu)
+int MoveNet::load(AAssetManager* mgr, const char* modeltype, int _target_size, const float* _mean_vals, const float* _norm_vals, bool use_gpu, int sport_id)
 {
     poseNet.clear();
     blob_pool_allocator.clear();
@@ -101,45 +105,23 @@ int NanoDet::load(AAssetManager* mgr, const char* modeltype, int _target_size, c
     poseNet.load_param(mgr,parampath);
     poseNet.load_model(mgr,modelpath);
 
-    target_size = _target_size;
+    target_size = _target_size;  // should be 192
+    feature_size = 48;
     mean_vals[0] = _mean_vals[0];
     mean_vals[1] = _mean_vals[1];
     mean_vals[2] = _mean_vals[2];
     norm_vals[0] = _norm_vals[0];
     norm_vals[1] = _norm_vals[1];
     norm_vals[2] = _norm_vals[2];
-    
-    if(target_size == 192)
-    {
-        feature_size = 48;
-        kpt_scale = 0.02083333395421505;
-    }
-    else
-    {
-        feature_size = 64;
-        kpt_scale = 0.015625;
-    }
-    for (int i = 0; i < feature_size; i++)
-    {
-        std::vector<float> x, y;
-        for (int j = 0; j < feature_size; j++)
-        {
-            x.push_back(j);
-            y.push_back(i);
-        }
-        dist_y.push_back(y);
-        dist_x.push_back(x);
-    }
+
+    sport_kind = sport_id;
+    count_number = 0;
+    count_lock = false;
+
     return 0;
 }
 
-int NanoDet::detect(const cv::Mat& rgb)
-{
-    //TODO:add person detection
-    return 0;
-}
-
-void NanoDet::preprocess(cv::Mat &rgb, ncnn::Mat& in_processed, int& hpad, int& wpad, float& scale) {
+void MoveNet::preprocess(cv::Mat &rgb, ncnn::Mat& in_processed, int& hpad, int& wpad, float& scale) {
     int w = rgb.cols;
     int h = rgb.rows;
     if (w > h)
@@ -163,7 +145,7 @@ void NanoDet::preprocess(cv::Mat &rgb, ncnn::Mat& in_processed, int& hpad, int& 
 
 }
 
-void NanoDet::detect_pose(cv::Mat &rgb, std::vector<keypoint> &points)
+void MoveNet::detect(cv::Mat &rgb, std::vector<keypoint> &points)
 {
     ncnn::Mat in;
     int hpad, wpad;
@@ -231,7 +213,7 @@ void NanoDet::detect_pose(cv::Mat &rgb, std::vector<keypoint> &points)
         float refined_y = (rough_y + kpt_offset_y);
         float refined_x = (rough_x + kpt_offset_x);
 
-        // the heatmap is downsampled by 4x
+        // the heatmap is downsampled by 4
         keypoint kpt;
         kpt.x = (refined_x * 4 - (wpad / 2)) / scale;
         kpt.y = (refined_y * 4 - (hpad / 2)) / scale;
@@ -240,42 +222,38 @@ void NanoDet::detect_pose(cv::Mat &rgb, std::vector<keypoint> &points)
     }
 }
 
-int NanoDet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
+int MoveNet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
 {
-//    std::vector<keypoint> points;
-//    detect_pose(rgb,points);
+    int skele_index[][2] = {
+        {0,1},{0,2},{1,3},{2,4},{0,5},
+        {0,6},{5,6},{5,7},{7,9},{6,8},
+        {8,10},{11,12},{5,11},{11,13},
+        {13,15},{6,12},{12,14},{14,16}
+    };
 
-    int skele_index[][2] = { {0,1},{0,2},{1,3},{2,4},{0,5},{0,6},{5,6},{5,7},{7,9},{6,8},{8,10},{11,12},
-                                {5,11},{11,13},{13,15},{6,12},{12,14},{14,16} };
-    int color_index[][3] = { {255, 0, 0},
-        {0, 0, 255},
-        {255, 0, 0},
-        {0, 0, 255},
-        {255, 0, 0},
-        {0, 0, 255},
-        {0, 255, 0},
-        {255, 0, 0},
-        {255, 0, 0},
-        {0, 0, 255},
-        {0, 0, 255},
-        {0, 255, 0},
-        {255, 0, 0},
-        {255, 0, 0},
-        {255, 0, 0},
-        {0, 0, 255},
-        {0, 0, 255},
-        {0, 0, 255}, };
+    int color_index[][3] = {
+        {255, 0, 0},{0, 0, 255},{255, 0, 0},{0, 0, 255},{255, 0, 0},
+        {0, 0, 255},{0, 255, 0},{255, 0, 0},{255, 0, 0},{0, 0, 255},
+        {0, 0, 255},{0, 255, 0},{255, 0, 0},{255, 0, 0},
+        {255, 0, 0},{0, 0, 255},{0, 0, 255},{0, 0, 255},
+        };
 
     for (int i = 0; i < 18; i++)
     {
         if(points[skele_index[i][0]].score > 0.3 && points[skele_index[i][1]].score > 0.3)
-            cv::line(rgb, cv::Point(points[skele_index[i][0]].x,points[skele_index[i][0]].y),
-                    cv::Point(points[skele_index[i][1]].x,points[skele_index[i][1]].y), cv::Scalar(color_index[i][0], color_index[i][1], color_index[i][2]), 2);
+            cv::line(rgb,
+                    cv::Point(points[skele_index[i][0]].x, points[skele_index[i][0]].y),
+                    cv::Point(points[skele_index[i][1]].x, points[skele_index[i][1]].y),
+                    cv::Scalar(color_index[i][0],color_index[i][1], color_index[i][2]), 2
+                    );
     }
     for (int i = 0; i < num_joints; i++)
     {
         if (points[i].score > 0.3)
-            cv::circle(rgb, cv::Point(points[i].x,points[i].y), 3, cv::Scalar(100, 255, 150), -1);
+            cv::circle(rgb,
+                    cv::Point(points[i].x,points[i].y),
+                    3, cv::Scalar(100, 255, 150), -1
+                    );
     }
     return 0;
 }
@@ -296,8 +274,8 @@ float angle(keypoint& pa, keypoint& pb, keypoint& pc) {
     return deg;
 }
 
-void NanoDet::count(std::vector<keypoint>& points) {
-    if (sport_kind == 1) {
+void MoveNet::count(std::vector<keypoint>& points) {
+    if (sport_kind == 0) {
         float neck_hip_foot_angle = angle(points[0], points[11], points[15]);
         if (!count_lock && neck_hip_foot_angle < 120) {
             count_lock = true;
@@ -307,5 +285,4 @@ void NanoDet::count(std::vector<keypoint>& points) {
             count_lock = false;
         }
     }
-
 }

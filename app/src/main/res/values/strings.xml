@@ -2,9 +2,8 @@
 <resources>
     <string name="app_name">bodypose_demo</string>
     <string-array name="model_array">
-        <item>MoveNet-tflite-opt</item>
-        <item>MoveNet-tflite-opt-fp16</item>
-        <item>MoveNet-tflite-opt-int8</item>
+        <item>Sit-up</item>
+        <item>More sports</item>
     </string-array>
     <string-array name="cpugpu_array">
         <item>CPU</item>

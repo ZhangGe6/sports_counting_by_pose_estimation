@@ -12,8 +12,8 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-#ifndef NANODET_H
-#define NANODET_H
+#ifndef MOVENET_H
+#define MOVENET_H
 
 #include <opencv2/core/core.hpp>
 
@@ -25,17 +25,16 @@ struct keypoint
     float score;
 };
 
-class NanoDet
+class MoveNet
 {
 public:
-    NanoDet();
+    MoveNet();
 
-    int load(const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu = false);
+    int load(const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu = false, int sport_id=0);
 
-    int load(AAssetManager* mgr, const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu = false);
+    int load(AAssetManager* mgr, const char* modeltype, int target_size, const float* mean_vals, const float* norm_vals, bool use_gpu=false, int sport_id=0);
 
-    int detect(const cv::Mat& rgb);
-    void detect_pose(cv::Mat &rgb, std::vector<keypoint> &points);
+    void detect(cv::Mat &rgb, std::vector<keypoint> &points);
     int draw(cv::Mat& rgb, std::vector<keypoint> &points);
     void count(std::vector<keypoint>& points);
 
@@ -48,16 +47,13 @@ private:
 
     ncnn::Net poseNet;
     int feature_size;
-    float kpt_scale;
     int target_size;
     float mean_vals[3];
     float norm_vals[3];
-    std::vector<std::vector<float>> dist_y, dist_x;
     bool count_lock;
-
 
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;
 };
 
-#endif // NANODET_H
+#endif // MOVENET_H

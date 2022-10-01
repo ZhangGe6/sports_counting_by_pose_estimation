@@ -26,7 +26,7 @@
 #include <platform.h>
 #include <benchmark.h>
 
-#include "nanodet.h"
+#include "movenet.h"
 
 #include "ndkcamera.h"
 
@@ -132,7 +132,7 @@ static int draw_count(cv::Mat& rgb, int count)
 }
 
 
-static NanoDet* g_nanodet = 0;
+static MoveNet* g_net = 0;
 static ncnn::Mutex lock;
 
 class MyNdkCamera : public NdkCameraWindow
@@ -147,12 +147,12 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
     {
         ncnn::MutexLockGuard g(lock);
 
-        if (g_nanodet)
+        if (g_net)
         {
             std::vector<keypoint> points;
-            g_nanodet->detect_pose(rgb, points);
-            g_nanodet->draw(rgb, points);
-            g_nanodet->count(points);
+            g_net->detect(rgb, points);
+            g_net->draw(rgb, points);
+            g_net->count(points);
         }
         else
         {
@@ -161,8 +161,7 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
     }
 
     draw_fps(rgb);
-    draw_count(rgb, g_nanodet ? g_nanodet->count_number : 0);
-
+    draw_count(rgb, g_net ? g_net->count_number : 0);
 }
 
 static MyNdkCamera* g_camera = 0;
@@ -185,8 +184,8 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
     {
         ncnn::MutexLockGuard g(lock);
 
-        delete g_nanodet;
-        g_nanodet = 0;
+        delete g_net;
+        g_net = 0;
     }
 
     delete g_camera;
@@ -194,9 +193,9 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved)
 }
 
 // public native boolean loadModel(AssetManager mgr, int modelid, int cpugpu);
-JNIEXPORT jboolean JNICALL Java_com_tencent_ncnnbodypose_NcnnBodypose_loadModel(JNIEnv* env, jobject thiz, jobject assetManager, jint modelid, jint cpugpu)
+JNIEXPORT jboolean JNICALL Java_com_tencent_ncnnbodypose_NcnnBodypose_loadModel(JNIEnv* env, jobject thiz, jobject assetManager, jint sport_id, jint cpugpu)
 {
-    if (modelid < 0 || modelid > 6 || cpugpu < 0 || cpugpu > 1)
+    if (cpugpu < 0 || cpugpu > 1)
     {
         return JNI_FALSE;
     }
@@ -205,37 +204,11 @@ JNIEXPORT jboolean JNICALL Java_com_tencent_ncnnbodypose_NcnnBodypose_loadModel(
 
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "loadModel %p", mgr);
 
-    const char* modeltypes[] =
-    {
-//        "slimmed_tflite_opt",
-        "movenet_opt",
-        "slimmed_tflite_opt_fp16",
-        "slimmed_tflite_opt_int8",
-    };
+    const char* modeltype = "movenet_opt";
+    int target_size = 192;
+    const float mean_vals[3] = {127.5f, 127.5f,  127.5f};
+    const float norm_vals[3] = {1/ 127.5f, 1 / 127.5f, 1 / 127.5f};
 
-    const int target_sizes[] =
-    {
-        192,
-        192,
-        192,
-    };
-
-    const float mean_vals[][3] =
-    {
-        {127.5f, 127.5f,  127.5f},
-        {127.5f, 127.5f,  127.5f},
-        {127.5f, 127.5f,  127.5f},
-    };
-
-    const float norm_vals[][3] =
-    {
-        {1/ 127.5f, 1 / 127.5f, 1 / 127.5f},
-        {1/ 127.5f, 1 / 127.5f, 1 / 127.5f},
-        {1/ 127.5f, 1 / 127.5f, 1 / 127.5f},
-    };
-
-    const char* modeltype = modeltypes[(int)modelid];
-    int target_size = target_sizes[(int)modelid];
     bool use_gpu = (int)cpugpu == 1;
 
     // reload
@@ -245,14 +218,14 @@ JNIEXPORT jboolean JNICALL Java_com_tencent_ncnnbodypose_NcnnBodypose_loadModel(
         if (use_gpu && ncnn::get_gpu_count() == 0)
         {
             // no gpu
-            delete g_nanodet;
-            g_nanodet = 0;
+            delete g_net;
+            g_net = 0;
         }
         else
         {
-            if (!g_nanodet)
-                g_nanodet = new NanoDet;
-            g_nanodet->load(mgr, modeltype, target_size, mean_vals[(int)modelid], norm_vals[(int)modelid], use_gpu);
+            if (!g_net)
+                g_net = new MoveNet;
+            g_net->load(mgr, modeltype, target_size, mean_vals, norm_vals, use_gpu, sport_id);
         }
     }
 

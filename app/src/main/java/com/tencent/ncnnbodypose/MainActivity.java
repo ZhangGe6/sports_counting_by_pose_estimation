@@ -41,7 +41,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback
 
     private Spinner spinnerModel;
     private Spinner spinnerCPUGPU;
-    private int current_model = 0;
+    private int current_sport= 0;
     private int current_cpugpu = 0;
 
     private SurfaceView cameraView;
@@ -80,9 +80,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
             {
-                if (position != current_model)
+                if (position != current_sport)
                 {
-                    current_model = position;
+                    current_sport = position;
                     reload();
                 }
             }
@@ -116,7 +116,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback
 
     private void reload()
     {
-        boolean ret_init = ncnnbodypose.loadModel(getAssets(), current_model, current_cpugpu);
+        boolean ret_init = ncnnbodypose.loadModel(getAssets(), current_sport, current_cpugpu);
         if (!ret_init)
         {
             Log.e("MainActivity", "ncnnbodypose loadModel failed");
