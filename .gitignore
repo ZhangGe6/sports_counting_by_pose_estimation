@@ -1,10 +1,38 @@
+# android generated files
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+output.json
+release/
+
+# IntelliJ
 *.iml
-.gradle
-/local.properties
-/.idea
-*/.DS_Store
-*/build
-build
-/captures
-*/.externalNativeBuild
-app/release
+.idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Android Profiling
+*.hprof
+
+# ncnn and opencv built files
+app/src/main/jni/ncnn-20220216-android-vulkan/
+app/src/main/jni/opencv-mobile-4.5.4-android/
