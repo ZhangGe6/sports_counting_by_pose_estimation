@@ -260,6 +260,12 @@ void MoveNet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
 }
 
 void MoveNet::count(std::vector<keypoint>& points) {
+    /* The map from joint index to joint:
+     * 0 : neck; 1 & 2 : eyes; 3 & 4 : ears
+     * 5 & 6 : shoulders; 7 & 8 : elbows; 9 & 10 : hands
+     * 11 & 12 : hips; 13 & 14 : knees;
+     * 15 & 16 : feet
+     * */
     if (sport_kind == 0) {
         bool valid = (points[0].score > 0.3 && points[11].score > 0.3 && points[15].score > 0.3);
         if (!valid) return;

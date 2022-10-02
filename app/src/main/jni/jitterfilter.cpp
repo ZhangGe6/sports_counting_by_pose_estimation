@@ -31,7 +31,8 @@ float get_alpha(float rate=30, float cutoff=1) {
 //OneEuroFilter::OneEuroFilter(float freq_, float min_cutoff_, float beta_, float d_cutoff_) : x_filter(), dx_filter()
 OneEuroFilter::OneEuroFilter() : x_filter(), dx_filter()
 {
-    freq = 7;
+//    freq = 7;
+    freq = 25;
     min_cutoff = 1;
     beta = 0.05;
     d_cutoff = 1;

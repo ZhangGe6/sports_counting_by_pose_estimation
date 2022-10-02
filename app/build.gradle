@@ -11,6 +11,12 @@ android {
         minSdkVersion 24
     }
 
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "sport_counting.apk"
+        }
+
+    }
     externalNativeBuild {
         cmake {
             version "3.10.2"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">bodypose_demo</string>
+    <string name="app_name">sport counting</string>
     <string-array name="model_array">
         <item>Sit-up</item>
         <item>More sports</item>
