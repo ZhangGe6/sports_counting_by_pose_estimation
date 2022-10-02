@@ -51,8 +51,8 @@ private:
     float norm_vals[3];
     bool count_lock;
 
+    //    LowPassFilterJoints joint_filters;
     OneEuroFilterJoints joint_filters;
-//    LowPassFilterJoints joint_filters;
 
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;

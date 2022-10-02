@@ -214,6 +214,7 @@ void MoveNet::detect(cv::Mat &rgb, std::vector<keypoint> &points)
         points.push_back(kpt);
     }
 
+    // filter joint jitter
     for (int i = 0; i < num_joints; ++i) {
 //        points[i].y = joint_filters.filters[i].first.filter(clock(), points[i].y);
 //        points[i].x = joint_filters.filters[i].second.filter(clock(), points[i].x);
@@ -260,6 +261,9 @@ void MoveNet::draw(cv::Mat& rgb, std::vector<keypoint> &points)
 
 void MoveNet::count(std::vector<keypoint>& points) {
     if (sport_kind == 0) {
+        bool valid = (points[0].score > 0.3 && points[11].score > 0.3 && points[15].score > 0.3);
+        if (!valid) return;
+
         float neck_hip_foot_angle = angle(points[0], points[11], points[15]);
         if (!count_lock && neck_hip_foot_angle < 120) {
             count_lock = true;
