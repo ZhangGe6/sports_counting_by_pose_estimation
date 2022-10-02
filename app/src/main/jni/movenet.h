@@ -16,8 +16,9 @@
 #define MOVENET_H
 
 #include <opencv2/core/core.hpp>
-
 #include <net.h>
+#include "jitterfilter.h"
+
 struct keypoint
 {
     float x;
@@ -49,6 +50,9 @@ private:
     float mean_vals[3];
     float norm_vals[3];
     bool count_lock;
+
+    OneEuroFilterJoints joint_filters;
+//    LowPassFilterJoints joint_filters;
 
     ncnn::UnlockedPoolAllocator blob_pool_allocator;
     ncnn::PoolAllocator workspace_pool_allocator;

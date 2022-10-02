@@ -19,7 +19,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "cpu.h"
 
-MoveNet::MoveNet()
+MoveNet::MoveNet() : joint_filters()
 {
     num_joints = 17;
     sport_kind = 1;
@@ -177,7 +177,7 @@ void MoveNet::detect(cv::Mat &rgb, std::vector<keypoint> &points)
     // compute scores for each `pixel` based on heatmap and its distance between the regress point
     ncnn::Mat kpt_scores = ncnn::Mat(feature_size * feature_size, num_joints, sizeof(float));
     float* scores_data = (float*)kpt_scores.data;
-    for (int c = 0; c < num_joints; c++) {
+    for (int c = 0; c < num_joints; ++c) {
         for (int y = 0; y < feature_size; ++y) {
             for (int x = 0; x < feature_size; ++x) {
                 float dist_weight = std::sqrt(std::pow(y - regressed_y[c], 2) + std::pow(x - regressed_x[c], 2)) + 1.8;
@@ -197,7 +197,7 @@ void MoveNet::detect(cv::Mat &rgb, std::vector<keypoint> &points)
 
     // add offset for refined joints and map to rgb size
     points.clear();
-    for (int i = 0; i < num_joints; i++)
+    for (int i = 0; i < num_joints; ++i)
     {
         int rough_y = rough_kpts[i].first, rough_x = rough_kpts[i].second;
         float kpt_offset_y = offset.channel(2 * i).row(rough_y)[rough_x];
@@ -212,6 +212,14 @@ void MoveNet::detect(cv::Mat &rgb, std::vector<keypoint> &points)
         kpt.y = (refined_y * 4 - (hpad / 2)) / scale;
         kpt.score = heatmap.channel(i).row(rough_y)[rough_x];
         points.push_back(kpt);
+    }
+
+    for (int i = 0; i < num_joints; ++i) {
+//        points[i].y = joint_filters.filters[i].first.filter(clock(), points[i].y);
+//        points[i].x = joint_filters.filters[i].second.filter(clock(), points[i].x);
+
+        points[i].y = joint_filters.filters[i].first.filter(points[i].y);
+        points[i].x = joint_filters.filters[i].second.filter(points[i].x);
     }
 }
 
